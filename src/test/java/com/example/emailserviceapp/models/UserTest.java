@@ -1,9 +1,6 @@
 package com.example.emailserviceapp.models;
 
-import com.example.emailserviceapp.dtos.SignUpRequest;
-import com.example.emailserviceapp.dtos.SignUpResponse;
-import com.example.emailserviceapp.dtos.UpdateRequest;
-import com.example.emailserviceapp.dtos.UpdateResponse;
+import com.example.emailserviceapp.dtos.*;
 import com.example.emailserviceapp.exceptions.EmailException;
 import com.example.emailserviceapp.service.UserServiceImpl;
 import org.junit.jupiter.api.AfterEach;
@@ -33,7 +30,7 @@ class UserTest {
     }
 
 @Test
-void testForUserCanHaveAnEmailAccount(){
+void testForUserCanSignUp(){
 
          SignUpResponse response= userService.signUp(user);
          assertThat(response.getEmail()).isEqualTo("agbonirojacinta@gmail.com");
@@ -78,6 +75,17 @@ void testToUpdateUserCredentials(){
     assertThat(updatedResponse.getFullName()).isEqualTo("Jacinta Esther");
     assertThat(updatedResponse.getPassword()).isEqualTo("Esther12_&");
 
+}
+
+@Test
+void userCanLogin(){
+        userService.signUp(user);
+        LoginRequest loginRequest = new LoginRequest();
+        loginRequest.setPassword("Jacinta@5");
+        loginRequest.setEmail("agbonirojacinta@gmail.com");
+
+        LoginResponse response=userService.login(loginRequest);
+        assertThat(response.getMessage()).isEqualTo("Welcome agbonirojacinta@gmail.com");
 }
 
 

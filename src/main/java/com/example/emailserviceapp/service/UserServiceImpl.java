@@ -1,10 +1,7 @@
 package com.example.emailserviceapp.service;
 
 
-import com.example.emailserviceapp.dtos.SignUpRequest;
-import com.example.emailserviceapp.dtos.SignUpResponse;
-import com.example.emailserviceapp.dtos.UpdateRequest;
-import com.example.emailserviceapp.dtos.UpdateResponse;
+import com.example.emailserviceapp.dtos.*;
 import com.example.emailserviceapp.exceptions.EmailException;
 import com.example.emailserviceapp.models.Mailbox;
 import com.example.emailserviceapp.models.Mailboxes;
@@ -38,17 +35,8 @@ public class UserServiceImpl implements UserService {
                 .fullName(request.getFirstName()+ " "+ request.getLastName())
                 .build();
 
-        Mailbox mailbox = new Mailbox();
-        mailbox.setEmail(user.getEmail());
 
-
-        Mailboxes mailboxes = new Mailboxes();
-        mailboxes.setEmail(mailbox.getEmail());
-
-        mailboxes.setMailbox(mailbox);
-
-
-        service.createMailboxes(mailboxes);
+        service.createMailboxes(user.getEmail());
 
      User registeredUser=   userRepository.save(user);
      SignUpResponse response = new SignUpResponse();
@@ -61,35 +49,50 @@ public class UserServiceImpl implements UserService {
     @Override
     public UpdateResponse update(UpdateRequest request) {
       boolean isUpdated = false;
+
       User user=  userRepository.findById(request.getEmail()).orElseThrow(
               ()->new EmailException("user not found")
       );
-        UpdateResponse response = new UpdateResponse();
 
-            if (!(request.getPassword() == null || request.getPassword().trim().equals(""))) {
-                String password = password(request.getPassword());
-                user.setPassword(password);
-                isUpdated = true;
-            }
-            if (!(request.getFirstName() == null || request.getFirstName().trim().equals(""))
-                    || (!(request.getLastName() == null || request.getLastName().trim().equals("")))) {
-                user.setFullName(request.getFirstName() + " " + request.getLastName());
-                isUpdated = true;
-            }
-            if (isUpdated) {
-              User updatedUser=  userRepository.save(user);
+        user.setLoggedIn(true);
+          UpdateResponse response = new UpdateResponse();
+          if (!(request.getPassword() == null || request.getPassword().trim().equals(""))) {
+              String password = password(request.getPassword());
+              user.setPassword(password);
+              isUpdated = true;
+          }
+          if (!(request.getFirstName() == null || request.getFirstName().trim().equals(""))
+                  || (!(request.getLastName() == null || request.getLastName().trim().equals("")))) {
+              user.setFullName(request.getFirstName() + " " + request.getLastName());
+              isUpdated = true;
+          }
+          if (isUpdated ) {
+              User updatedUser = userRepository.save(user);
               response.setEmail(updatedUser.getEmail());
               response.setPassword(updatedUser.getPassword());
               response.setFullName(updatedUser.getFullName());
               response.setMessage("updated successfully");
-//                return response;
-
-
-
-        return response;
-            }
+              return response;
+          }
             throw new EmailException("not updated");
 
+
+    }
+
+    @Override
+    public LoginResponse login(LoginRequest loginRequest) {
+      User user=  userRepository.findById(loginRequest.getEmail())
+              .orElseThrow(()->new EmailException("user not found"));
+
+      if(user.getPassword().equals(loginRequest.getPassword())) {
+          user.setLoggedIn(true);
+         User savedUser= userRepository.save(user);
+
+          LoginResponse response= new LoginResponse();
+          response.setMessage("Welcome " + savedUser.getEmail());
+          return response;
+      }
+      else throw new EmailException("Invalid Details");
     }
 
     private String password(String request) {

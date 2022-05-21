@@ -1,19 +1,16 @@
-package com.example.emailserviceapp.models;
+package com.example.emailserviceapp.dtos;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.data.annotation.Id;
 
-@Getter
 @Setter
+@Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class Mailbox {
+public class LoginRequest {
 
-    @Id
     private String email;
-    private Message message;
-    private Type type;
+    private String password;
 }

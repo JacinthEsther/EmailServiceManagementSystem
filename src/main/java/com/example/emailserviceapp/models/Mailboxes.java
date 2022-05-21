@@ -3,15 +3,19 @@ package com.example.emailserviceapp.models;
 
 import lombok.*;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+
+import java.util.ArrayList;
 
 @Getter
 @Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Document
 public class Mailboxes {
     @Id
     private String email;
-    private Mailbox mailbox;
+    private ArrayList<Mailbox> mailbox= new ArrayList<>();
 
 }
