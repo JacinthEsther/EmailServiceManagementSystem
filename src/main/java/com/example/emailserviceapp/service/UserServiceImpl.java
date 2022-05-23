@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -93,6 +94,30 @@ public class UserServiceImpl implements UserService {
           return response;
       }
       else throw new EmailException("Invalid Details");
+    }
+
+    @Override
+    public void deleteAll() {
+        userRepository.deleteAll();
+    }
+
+    @Override
+    public SignUpResponse findBy(String email) {
+        User user = userRepository.findById(email).orElseThrow(()->
+                new EmailException("user does not exist"));
+
+        user.setLoggedIn(true);
+        User savedUser= userRepository.save(user);
+        SignUpResponse response= new SignUpResponse();
+        response.setEmail(savedUser.getEmail());
+        response.setMessage(savedUser.getEmail() + " found");
+
+        return response;
+    }
+
+    @Override
+    public List<User> findAllUsers() {
+        return userRepository.findAll();
     }
 
     private String password(String request) {

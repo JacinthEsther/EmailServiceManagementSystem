@@ -9,6 +9,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -88,8 +90,23 @@ void userCanLogin(){
         assertThat(response.getMessage()).isEqualTo("Welcome agbonirojacinta@gmail.com");
 }
 
+@Test
+void testToFindUser(){
+      SignUpResponse response=  userService.signUp(user);
+      SignUpResponse getResponse= userService.findBy(response.getEmail());
+      assertThat(response.getEmail()).isEqualTo(getResponse.getEmail());
+
+}
+
+@Test
+void findAllUserTest(){
+    userService.signUp(user);
+    List<User> users = userService.findAllUsers();
+    assertThat(users.size()).isEqualTo(1);
+}
 
     @AfterEach
     void tearDown() {
+        userService.deleteAll();
     }
 }

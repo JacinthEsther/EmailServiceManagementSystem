@@ -57,6 +57,7 @@ public class MailboxesServiceImpl implements MailboxesService {
         mailbox.setType(Type.INBOX);
 
 
+
         Mailbox mailbox1 = new Mailbox();
 
         mailbox1.setMessage(message);

@@ -11,6 +11,7 @@ public class MessageTest {
 
     @Autowired
     MessageServiceImpl messageService;
+
 //    @Test
 //    void messageCanBeSentToAnotherUser(){
 //        MessageRequest message = new MessageRequest();
@@ -18,6 +19,8 @@ public class MessageTest {
 //        message.setRecipientEmailAddress("agbonirojacinta@gmail.com");
 //
 //        messageService.sendMessage(message, "jacinta@gmail.com");
+//
+//
 //
 //
 //

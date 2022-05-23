@@ -31,7 +31,7 @@ public class MessageServiceImpl implements MessageService{
         incomingMessage.setSender(sendersEmail);
 
         incomingMessage.setReceiver(message.getRecipientEmailAddress());
-
+        incomingMessage.setRead(true);
 
         mailboxesService.addMessages(incomingMessage);
 
