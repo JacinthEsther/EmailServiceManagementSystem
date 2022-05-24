@@ -11,6 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class MailboxesServiceImpl implements MailboxesService {
@@ -32,7 +34,7 @@ public class MailboxesServiceImpl implements MailboxesService {
         message.setMessageBody("Welcome "+ email);
 
         mailbox.setType(Type.INBOX);
-        mailbox.setMessage(message);
+        mailbox.getMessage().add(message);
 
         mailboxes.setEmail(email);
         mailboxes.getMailbox().add(mailbox);
@@ -52,7 +54,8 @@ public class MailboxesServiceImpl implements MailboxesService {
 
         Mailbox mailbox= new Mailbox();
 
-        mailbox.setMessage(message);
+        mailbox.getMessage().add(message);
+
         mailbox.setEmail(message.getReceiver());
         mailbox.setType(Type.INBOX);
 
@@ -60,7 +63,8 @@ public class MailboxesServiceImpl implements MailboxesService {
 
         Mailbox mailbox1 = new Mailbox();
 
-        mailbox1.setMessage(message);
+        mailbox1.getMessage().add(message);
+
         mailbox1.setEmail(message.getSender());
         mailbox1.setType(Type.SENT);
 
@@ -72,5 +76,31 @@ public class MailboxesServiceImpl implements MailboxesService {
         repository.save(mailboxes1);
         repository.save(mailboxes2);
 
+    }
+
+    @Override
+    public List<Mailbox> viewAllInboxes(String email) {
+      Mailboxes mailboxes=  repository.findById(email).orElseThrow(
+              ()-> new EmailException("email does not exist")
+      );
+
+        return mailboxes.getMailbox().stream()
+                .parallel()
+                .filter(mailbox-> mailbox.getType()==Type.INBOX)
+                .collect(Collectors.toList());
+
+
+    }
+
+    @Override
+    public List<Mailbox> viewAllOutboxes(String email) {
+        Mailboxes mailboxes=  repository.findById(email).orElseThrow(
+                ()-> new EmailException("email does not exist")
+        );
+
+        return mailboxes.getMailbox().stream()
+                .parallel()
+                .filter(mailbox-> mailbox.getType()==Type.SENT)
+                .collect(Collectors.toList());
     }
 }

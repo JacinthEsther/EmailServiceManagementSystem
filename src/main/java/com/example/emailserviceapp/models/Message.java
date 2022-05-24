@@ -12,7 +12,6 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 @Document
-
 public class Message {
     @Id
     private String messageId;
