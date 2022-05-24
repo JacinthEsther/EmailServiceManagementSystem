@@ -5,6 +5,8 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
@@ -16,7 +18,7 @@ public class Message {
     @Id
     private String messageId;
     private String sender;
-    private String receiver;
+    private List<String> receivers = new ArrayList<>();
     private boolean isRead;
     private LocalDateTime localDateTime;
     private String messageBody;

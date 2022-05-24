@@ -5,6 +5,7 @@ import com.example.emailserviceapp.dtos.*;
 import com.example.emailserviceapp.exceptions.EmailException;
 import com.example.emailserviceapp.models.Mailbox;
 import com.example.emailserviceapp.models.Mailboxes;
+import com.example.emailserviceapp.models.Notification;
 import com.example.emailserviceapp.models.User;
 import com.example.emailserviceapp.repositories.UserRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -118,6 +119,15 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<User> findAllUsers() {
         return userRepository.findAll();
+    }
+
+    @Override
+    public void getNewNotifications(Notification notification) {
+        String userEmail = notification.getEmail();
+        User user = userRepository.findById(userEmail).orElseThrow();
+        user.getNewNotifications().add(notification);
+        userRepository.save(user);
+
     }
 
     private String password(String request) {

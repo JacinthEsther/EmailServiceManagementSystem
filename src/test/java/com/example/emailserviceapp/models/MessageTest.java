@@ -82,6 +82,7 @@ public class MessageTest {
         message.getEmails().add("jacintaEsther@gmail.com");
 
         messageService.sendBulkEmail(message,"jacinta@gmail.com");
+        userService.findBy("jacintaEsther@gmail.com");
     }
 
     @Test
@@ -139,6 +140,13 @@ public class MessageTest {
             //todo: complete delete implementation
             messageService.deleteMessage();
         }
+
+
+        @Test
+        void searchForMessageTest(){
+
+        }
+
 
     @AfterEach
     void tearDown() {

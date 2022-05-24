@@ -1,6 +1,7 @@
 package com.example.emailserviceapp.service;
 
 import com.example.emailserviceapp.dtos.*;
+import com.example.emailserviceapp.models.Notification;
 import com.example.emailserviceapp.models.User;
 
 import java.util.List;
@@ -20,4 +21,5 @@ public interface UserService {
     List<User> findAllUsers();
 
 
+    void getNewNotifications(Notification notification);
 }

@@ -8,6 +8,8 @@ import org.springframework.validation.annotation.Validated;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotEmpty;
+import java.util.ArrayList;
+import java.util.List;
 
 
 @Getter
@@ -27,4 +29,5 @@ public class User {
     @NotEmpty
     private String fullName;
     private boolean isLoggedIn;
+    private List<Notification> newNotifications= new ArrayList<>();
 }

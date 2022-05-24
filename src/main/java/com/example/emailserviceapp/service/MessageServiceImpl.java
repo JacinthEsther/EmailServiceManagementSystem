@@ -30,7 +30,8 @@ public class MessageServiceImpl implements MessageService{
         incomingMessage.setLocalDateTime(LocalDateTime.now());
         incomingMessage.setSender(senderEmail);
 
-        incomingMessage.setReceiver(message.getRecipientEmailAddress());
+
+        incomingMessage.getReceivers().add(message.getRecipientEmailAddress());
 
         mailboxesService.addMessages(incomingMessage);
         messageRepository.save(incomingMessage);
@@ -45,7 +46,7 @@ public class MessageServiceImpl implements MessageService{
         incomingMessage.setLocalDateTime(LocalDateTime.now());
         incomingMessage.setSender(email);
 
-        incomingMessage.setReceiver(message.getRecipientEmailAddress());
+        incomingMessage.getReceivers().add(message.getRecipientEmailAddress());
         incomingMessage.setRead(true);
 
         mailboxesService.addMessages(incomingMessage);
@@ -63,7 +64,13 @@ public class MessageServiceImpl implements MessageService{
         incomingMessage.setLocalDateTime(LocalDateTime.now());
         incomingMessage.setSender(senderEmail);
 
-        incomingMessage.setReceiver(message.getEmails().get(0));
+        for (int i = 0; i < message.getEmails().size(); i++) {
+            incomingMessage.getReceivers().add(message.getEmails().get(i));
+        }
+
+        mailboxesService.addMessages(incomingMessage);
+        messageRepository.save(incomingMessage);
+
     }
 
 
