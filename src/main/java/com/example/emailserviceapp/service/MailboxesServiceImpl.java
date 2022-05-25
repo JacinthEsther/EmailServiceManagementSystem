@@ -18,7 +18,8 @@ public class MailboxesServiceImpl implements MailboxesService {
     @Autowired
     private MailboxesRepository repository;
 
-
+    @Autowired
+    private UserRepository userRepository;
 
     @Override
     public Notification createMailboxes(String email) {
@@ -89,11 +90,14 @@ public class MailboxesServiceImpl implements MailboxesService {
         mailboxes2.getMailbox().add(mailbox1);
 
         notification.setMessageId(message.getMessageId());
+       User user= userRepository.findById(message.getReceivers().get(0)).orElseThrow();
         notification.setMessage(message);
 //        notification.setEmail(message.getSender());
         notification.setTitle("New Incoming Message from "+notification.getMessage());
 //        notificationService.getNewNotifications(notification);
         sendNotification(notification);
+        user.getNewNotifications().add(notification);
+        userRepository.save(user);
         repository.save(mailboxes1);
         repository.save(mailboxes2);
 
