@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.data.annotation.Id;
 
 @Setter
 @Getter
@@ -11,10 +12,10 @@ import lombok.Setter;
 @AllArgsConstructor
 
 public class Notification {
-
+    @Id
+    private String id;
     private String messageId;
-    private String email;
     private String title;
-    private String message;
+    private Message message;
 
 }

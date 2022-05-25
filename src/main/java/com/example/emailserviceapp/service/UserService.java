@@ -16,10 +16,12 @@ public interface UserService {
 
     void deleteAll();
 
-    SignUpResponse findBy(String email);
+    User findUserBy(String email);
 
     List<User> findAllUsers();
 
+    void setNotification(Notification notification);
 
-    void getNewNotifications(Notification notification);
+
+//    void getNewNotifications(Notification notification);
 }

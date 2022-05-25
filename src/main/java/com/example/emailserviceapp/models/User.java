@@ -29,5 +29,5 @@ public class User {
     @NotEmpty
     private String fullName;
     private boolean isLoggedIn;
-    private List<Notification> newNotifications= new ArrayList<>();
+    private List<Notification> newNotifications;
 }

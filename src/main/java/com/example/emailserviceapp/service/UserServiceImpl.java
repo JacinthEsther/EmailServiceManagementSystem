@@ -7,11 +7,13 @@ import com.example.emailserviceapp.models.Mailbox;
 import com.example.emailserviceapp.models.Mailboxes;
 import com.example.emailserviceapp.models.Notification;
 import com.example.emailserviceapp.models.User;
+import com.example.emailserviceapp.repositories.NotificationRepository;
 import com.example.emailserviceapp.repositories.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -35,12 +37,18 @@ public class UserServiceImpl implements UserService {
                 .password(password)
                 .email(email)
                 .fullName(request.getFirstName()+ " "+ request.getLastName())
+                .newNotifications(new ArrayList<>())
                 .build();
 
 
-        service.createMailboxes(user.getEmail());
+        Notification  notification=  service.createMailboxes(user.getEmail());
 
-     User registeredUser=   userRepository.save(user);
+//      notification.setMessage(mailboxes.getMailbox().get(0).getMessage().get(0));
+////      Notification returnedNotification=  notification.getNewNotifications(user.getEmail());
+      user.getNewNotifications().add(notification);
+
+
+     User registeredUser =   userRepository.save(user);
      SignUpResponse response = new SignUpResponse();
 
      response.setEmail(registeredUser.getEmail());
@@ -56,28 +64,29 @@ public class UserServiceImpl implements UserService {
               ()->new EmailException("user not found")
       );
 
-        user.setLoggedIn(true);
-          UpdateResponse response = new UpdateResponse();
-          if (!(request.getPassword() == null || request.getPassword().trim().equals(""))) {
-              String password = password(request.getPassword());
-              user.setPassword(password);
-              isUpdated = true;
-          }
-          if (!(request.getFirstName() == null || request.getFirstName().trim().equals(""))
-                  || (!(request.getLastName() == null || request.getLastName().trim().equals("")))) {
-              user.setFullName(request.getFirstName() + " " + request.getLastName());
-              isUpdated = true;
-          }
-          if (isUpdated ) {
-              User updatedUser = userRepository.save(user);
-              response.setEmail(updatedUser.getEmail());
-              response.setPassword(updatedUser.getPassword());
-              response.setFullName(updatedUser.getFullName());
-              response.setMessage("updated successfully");
-              return response;
-          }
+        if(user.isLoggedIn()) {
+            UpdateResponse response = new UpdateResponse();
+            if (!(request.getPassword() == null || request.getPassword().trim().equals(""))) {
+                String password = password(request.getPassword());
+                user.setPassword(password);
+                isUpdated = true;
+            }
+            if (!(request.getFirstName() == null || request.getFirstName().trim().equals(""))
+                    || (!(request.getLastName() == null || request.getLastName().trim().equals("")))) {
+                user.setFullName(request.getFirstName() + " " + request.getLastName());
+                isUpdated = true;
+            }
+            if (isUpdated) {
+                User updatedUser = userRepository.save(user);
+                response.setEmail(updatedUser.getEmail());
+                response.setPassword(updatedUser.getPassword());
+                response.setFullName(updatedUser.getFullName());
+                response.setMessage("updated successfully");
+                return response;
+            }
             throw new EmailException("not updated");
-
+        }
+        throw new EmailException("user must be logged in");
 
     }
 
@@ -85,16 +94,17 @@ public class UserServiceImpl implements UserService {
     public LoginResponse login(LoginRequest loginRequest) {
       User user=  userRepository.findById(loginRequest.getEmail())
               .orElseThrow(()->new EmailException("user not found"));
+        if(!user.isLoggedIn()) {
+            if (user.getPassword().equals(loginRequest.getPassword())) {
+                user.setLoggedIn(true);
+                User savedUser = userRepository.save(user);
 
-      if(user.getPassword().equals(loginRequest.getPassword())) {
-          user.setLoggedIn(true);
-         User savedUser= userRepository.save(user);
-
-          LoginResponse response= new LoginResponse();
-          response.setMessage("Welcome " + savedUser.getEmail());
-          return response;
-      }
-      else throw new EmailException("Invalid Details");
+                LoginResponse response = new LoginResponse();
+                response.setMessage("Welcome " + savedUser.getEmail());
+                return response;
+            } else throw new EmailException("Invalid Details");
+        }
+        return new LoginResponse("user already logged in");
     }
 
     @Override
@@ -103,32 +113,30 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public SignUpResponse findBy(String email) {
+    public User findUserBy(String email) {
         User user = userRepository.findById(email).orElseThrow(()->
                 new EmailException("user does not exist"));
 
-        user.setLoggedIn(true);
-        User savedUser= userRepository.save(user);
-        SignUpResponse response= new SignUpResponse();
-        response.setEmail(savedUser.getEmail());
-        response.setMessage(savedUser.getEmail() + " found");
+//        user.setLoggedIn(true);
 
-        return response;
+        return userRepository.save(user);
     }
 
     @Override
     public List<User> findAllUsers() {
-        return userRepository.findAll();
+        User user = new User();
+        if(user.isLoggedIn()) {
+            return userRepository.findAll();
+        }
+        throw new EmailException("user is not logged in");
     }
 
     @Override
-    public void getNewNotifications(Notification notification) {
-        String userEmail = notification.getEmail();
-        User user = userRepository.findById(userEmail).orElseThrow();
-        user.getNewNotifications().add(notification);
-        userRepository.save(user);
+    public void setNotification(Notification notification) {
 
+        service.sendNotification(notification);
     }
+
 
     private String password(String request) {
         String password="";

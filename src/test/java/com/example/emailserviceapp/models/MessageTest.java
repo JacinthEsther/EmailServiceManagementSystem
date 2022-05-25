@@ -82,7 +82,7 @@ public class MessageTest {
         message.getEmails().add("jacintaEsther@gmail.com");
 
         messageService.sendBulkEmail(message,"jacinta@gmail.com");
-        userService.findBy("jacintaEsther@gmail.com");
+        userService.findUserBy("jacintaEsther@gmail.com");
     }
 
     @Test

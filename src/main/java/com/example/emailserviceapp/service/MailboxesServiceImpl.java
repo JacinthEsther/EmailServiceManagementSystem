@@ -18,12 +18,10 @@ public class MailboxesServiceImpl implements MailboxesService {
     @Autowired
     private MailboxesRepository repository;
 
-    @Autowired
-    private UserService userService;
 
 
     @Override
-    public String createMailboxes(String email) {
+    public Notification createMailboxes(String email) {
         Mailboxes mailboxes = new Mailboxes();
 
         Notification notification = new Notification();
@@ -41,15 +39,15 @@ public class MailboxesServiceImpl implements MailboxesService {
 
         mailboxes.setEmail(email);
         mailboxes.getMailbox().add(mailbox);
-//
-        notification.setMessageId(message.getMessageId());
-        notification.setMessage(message.getMessageBody());
-        notification.setEmail("EmailServiceApp.com");
-        notification.setTitle("New Incoming Message from "+notification.getEmail());
-//        userService.getNewNotifications(notification);
 
-        repository.save(mailboxes);
-        return "successful";
+      repository.save(mailboxes);
+        notification.setMessageId(message.getMessageId());
+        notification.setMessage(message);
+        notification.setTitle("New Incoming Message from "+notification.getMessage().getMessageBody());
+
+
+//     notification.setTitle(mailbox12.getMailbox().get(0).getMessage().toString());
+        return notification;
     }
 
     @Override
@@ -91,11 +89,11 @@ public class MailboxesServiceImpl implements MailboxesService {
         mailboxes2.getMailbox().add(mailbox1);
 
         notification.setMessageId(message.getMessageId());
-        notification.setMessage(message.getMessageBody());
-        notification.setEmail(message.getSender());
-        notification.setTitle("New Incoming Message from "+notification.getEmail());
-//        userService.getNewNotifications(notification);
-
+        notification.setMessage(message);
+//        notification.setEmail(message.getSender());
+        notification.setTitle("New Incoming Message from "+notification.getMessage());
+//        notificationService.getNewNotifications(notification);
+        sendNotification(notification);
         repository.save(mailboxes1);
         repository.save(mailboxes2);
 
@@ -115,6 +113,10 @@ public class MailboxesServiceImpl implements MailboxesService {
 
     }
 
+    private void returnedNotification(Notification notification, Message message){
+
+
+    }
     @Override
     public List<Mailbox> viewAllOutboxes(String email) {
         Mailboxes mailboxes=  repository.findById(email).orElseThrow(
@@ -125,5 +127,10 @@ public class MailboxesServiceImpl implements MailboxesService {
                 .parallel()
                 .filter(mailbox-> mailbox.getType()==Type.SENT)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public Notification sendNotification(Notification notification) {
+       return  notification;
     }
 }

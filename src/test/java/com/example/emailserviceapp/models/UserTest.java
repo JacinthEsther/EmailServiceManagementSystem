@@ -93,8 +93,8 @@ void userCanLogin(){
 @Test
 void testToFindUser(){
       SignUpResponse response=  userService.signUp(user);
-      SignUpResponse getResponse= userService.findBy(response.getEmail());
-      assertThat(response.getEmail()).isEqualTo(getResponse.getEmail());
+      User user= userService.findUserBy(response.getEmail());
+      assertThat(response.getEmail()).isEqualTo(user.getEmail());
 
 }
 
