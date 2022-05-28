@@ -81,7 +81,7 @@ public class MessageTest {
         message.getEmails().add("agbonirojacinta@gmail.com");
         message.getEmails().add("jacintaEsther@gmail.com");
 
-        messageService.sendBulkEmail(message,"jacinta@gmail.com");
+        messageService.sendMessage(message,"jacinta@gmail.com");
         userService.findUserBy("jacintaEsther@gmail.com");
     }
 
@@ -94,7 +94,7 @@ public class MessageTest {
         message.setRecipientEmailAddress("agbonirojacinta@gmail.com");
 
 
-        messageService.readMessage(message,"jacinta@gmail.com");
+//        messageService.readMessage(message,"jacinta@gmail.com");
 
     }
 
@@ -107,7 +107,7 @@ public class MessageTest {
         message.setRecipientEmailAddress("agbonirojacinta@gmail.com");
 
 
-        messageService.readMessage(message,"jacinta@gmail.com");
+//        messageService.readMessage(message,"jacinta@gmail.com");
        List<Mailbox> inbox= mailboxesService.viewAllInboxes("agbonirojacinta@gmail.com");
        assertThat(inbox.size()).isEqualTo(2);
 
@@ -123,7 +123,7 @@ public class MessageTest {
         message.setRecipientEmailAddress("agbonirojacinta@gmail.com");
 
 
-        messageService.readMessage(message,"jacinta@gmail.com");
+//        messageService.readMessage(message,"jacinta@gmail.com");
         List<Mailbox> outbox= mailboxesService.viewAllOutboxes("jacinta@gmail.com");
         assertThat(outbox.size()).isEqualTo(1);
     }
@@ -136,9 +136,9 @@ public class MessageTest {
             message.setMessageBody("Hello how are you doing?");
             message.setRecipientEmailAddress("agbonirojacinta@gmail.com");
 
-            messageService.readMessage(message,"jacinta@gmail.com");
+//            messageService.readMessage(message,"jacinta@gmail.com");
             //todo: complete delete implementation
-            messageService.deleteMessage();
+            messageService.deleteMessage("");
         }
 
 

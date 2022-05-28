@@ -2,6 +2,7 @@ package com.example.emailserviceapp.service;
 
 import com.example.emailserviceapp.dtos.messages.BulkMessageRequest;
 import com.example.emailserviceapp.dtos.messages.MessageRequest;
+import com.example.emailserviceapp.exceptions.EmailException;
 import com.example.emailserviceapp.models.Mailbox;
 import com.example.emailserviceapp.models.Message;
 import com.example.emailserviceapp.models.Type;
@@ -23,6 +24,8 @@ public class MessageServiceImpl implements MessageService{
     @Autowired
     MailboxesServiceImpl mailboxesService;
 
+
+
     @Override
     public void sendMessage(MessageRequest message, String senderEmail) {
         Message incomingMessage = new Message();
@@ -33,32 +36,34 @@ public class MessageServiceImpl implements MessageService{
 
         incomingMessage.getReceivers().add(message.getRecipientEmailAddress());
 
-        mailboxesService.addMessages(incomingMessage);
-        messageRepository.save(incomingMessage);
+       Message newMessage= messageRepository.save(incomingMessage);
+        mailboxesService.addMessages(newMessage);
 
     }
 
     @Override
-    public void readMessage(MessageRequest message,String email) {
-        Message incomingMessage = new Message();
+    public void readMessage(String messageId) {
 
-        incomingMessage.setMessageBody(message.getMessageBody());
-        incomingMessage.setLocalDateTime(LocalDateTime.now());
-        incomingMessage.setSender(email);
 
-        incomingMessage.getReceivers().add(message.getRecipientEmailAddress());
+        Message incomingMessage =  messageRepository.findById(messageId).orElseThrow(()-> {
+            throw new EmailException("message not found");
+        });
         incomingMessage.setRead(true);
+      Message savedMessage=  messageRepository.save(incomingMessage);
 
-        mailboxesService.addMessages(incomingMessage);
+        mailboxesService.checkReadMessage(savedMessage);
     }
 
     @Override
-    public void deleteMessage() {
-
+    public void deleteMessage(String id) {
+     Message message  = messageRepository.findById(id).orElseThrow(
+                ()-> new EmailException("not found")
+        );
+       messageRepository.delete(message);
     }
 
     @Override
-    public void sendBulkEmail(BulkMessageRequest message, String senderEmail) {
+    public void sendMessage(BulkMessageRequest message, String senderEmail) {
         Message incomingMessage = new Message();
         incomingMessage.setMessageBody(message.getMessageBody());
         incomingMessage.setLocalDateTime(LocalDateTime.now());
@@ -68,9 +73,16 @@ public class MessageServiceImpl implements MessageService{
             incomingMessage.getReceivers().add(message.getEmails().get(i));
         }
 
-        mailboxesService.addMessages(incomingMessage);
-        messageRepository.save(incomingMessage);
+      Message newMessage=  messageRepository.save(incomingMessage);
+        mailboxesService.addMessages(newMessage);
 
+    }
+
+    @Override
+    public Message searchForMessage(String id) {
+        return messageRepository.findById(id).orElseThrow(
+                ()-> new EmailException("not found")
+        );
     }
 
 

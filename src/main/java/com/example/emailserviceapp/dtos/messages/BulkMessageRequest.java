@@ -15,6 +15,6 @@ import java.util.List;
 
 public class BulkMessageRequest {
 
-    private List<String> emails;
+    private List <String> emails;
     private String messageBody;
 }

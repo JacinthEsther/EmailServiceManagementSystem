@@ -131,11 +131,7 @@ public class UserServiceImpl implements UserService {
         throw new EmailException("user is not logged in");
     }
 
-    @Override
-    public void setNotification(Notification notification) {
 
-        service.sendNotification(notification);
-    }
 
 
     private String password(String request) {

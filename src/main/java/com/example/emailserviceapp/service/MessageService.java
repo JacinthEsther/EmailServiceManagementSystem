@@ -2,14 +2,18 @@ package com.example.emailserviceapp.service;
 
 import com.example.emailserviceapp.dtos.messages.BulkMessageRequest;
 import com.example.emailserviceapp.dtos.messages.MessageRequest;
+import com.example.emailserviceapp.models.Message;
 
 public interface MessageService {
+
     void sendMessage(MessageRequest message, String senderEmail);
 
-    void readMessage(MessageRequest message,String email);
+    void readMessage(String messageId);
 
 
-    void deleteMessage();
+    void deleteMessage(String id);
 
-    void sendBulkEmail(BulkMessageRequest message, String senderEmail);
+    void sendMessage(BulkMessageRequest message, String senderEmail);
+
+    Message searchForMessage(String id);
 }

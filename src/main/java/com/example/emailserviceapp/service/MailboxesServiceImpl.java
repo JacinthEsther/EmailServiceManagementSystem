@@ -4,15 +4,20 @@ package com.example.emailserviceapp.service;
 import com.example.emailserviceapp.exceptions.EmailException;
 import com.example.emailserviceapp.models.*;
 import com.example.emailserviceapp.repositories.MailboxesRepository;
+import com.example.emailserviceapp.repositories.NotificationRepository;
 import com.example.emailserviceapp.repositories.UserRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 public class MailboxesServiceImpl implements MailboxesService {
 
     @Autowired
@@ -20,6 +25,9 @@ public class MailboxesServiceImpl implements MailboxesService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private NotificationRepository notificationRepository;
 
     @Override
     public Notification createMailboxes(String email) {
@@ -46,61 +54,68 @@ public class MailboxesServiceImpl implements MailboxesService {
         notification.setMessage(message);
         notification.setTitle("New Incoming Message from "+notification.getMessage().getMessageBody());
 
-
-//     notification.setTitle(mailbox12.getMailbox().get(0).getMessage().toString());
+        notificationRepository.save(notification);
         return notification;
     }
 
     @Override
     public void addMessages(Message message) {
-      Mailboxes mailboxes1 = new Mailboxes();
+        Mailboxes mailboxes1 = new Mailboxes();
 
 //      mailboxes1.getMailbox().stream()
 //              .forEach(m -> repository.findById(m.setEmail(message.getReceivers().get(i))));
         for (int i = 0; i < message.getReceivers().size(); i++) {
-             mailboxes1= repository.findById(message.getReceivers().get(i)).orElseThrow(
-                    ()->
+            mailboxes1 = repository.findById(message.getReceivers().get(i)).orElseThrow(
+                    () ->
                             new EmailException("email not found")
             );
-        }
-
-        Mailboxes mailboxes2 = repository.findById(message.getSender()).
-                orElseThrow(()-> new EmailException("sender email not found"));
 
 
-        Mailbox mailbox= new Mailbox();
-
-        mailbox.getMessage().add(message);
-
-        mailbox.setEmail(message.getReceivers().get(0));
-        mailbox.setType(Type.INBOX);
+            Mailboxes mailboxes2 = repository.findById(message.getSender()).
+                    orElseThrow(() -> new EmailException("sender email not found"));
 
 
-        Notification notification= new Notification();
+            Mailbox mailbox = new Mailbox();
 
-        Mailbox mailbox1 = new Mailbox();
+            mailbox.getMessage().add(message);
 
-        mailbox1.getMessage().add(message);
-
-        mailbox1.setEmail(message.getSender());
-        mailbox1.setType(Type.SENT);
+            mailbox.setEmail(message.getReceivers().get(i));
+            mailbox.setType(Type.INBOX);
 
 
-        mailboxes1.getMailbox().add(mailbox);
-        mailboxes2.getMailbox().add(mailbox1);
+            Notification notification = new Notification();
 
-        notification.setMessageId(message.getMessageId());
-       User user= userRepository.findById(message.getReceivers().get(0)).orElseThrow();
-        notification.setMessage(message);
-//        notification.setEmail(message.getSender());
-        notification.setTitle("New Incoming Message from "+notification.getMessage());
-//        notificationService.getNewNotifications(notification);
-        sendNotification(notification);
-        user.getNewNotifications().add(notification);
-        userRepository.save(user);
+            Mailbox mailbox1 = new Mailbox();
+
+            mailbox1.getMessage().add(message);
+
+            mailbox1.setEmail(message.getSender());
+            mailbox1.setType(Type.SENT);
+
+
+            mailboxes1.getMailbox().add(mailbox);
+            mailboxes2.getMailbox().add(mailbox1);
+
+            notification.setMessageId(message.getMessageId());
+
+
+            User user = userRepository.findById(message.getReceivers().get(i)).orElseThrow();
+            notification.setMessage(message);
+            notification.setTitle("New Incoming Message from " + notification.getMessage());
+            Notification savedNotification = notificationRepository.save(notification);
+            user.getNewNotifications().add(savedNotification);
+            userRepository.save(user);
+
+
+//       if(message.isRead()){
+//           if(notification.getMessageId().equals(message.getMessageId())){
+//               user.getNewNotifications().remove(notification);
+//               userRepository.save(user);
+//           }
+//       }
         repository.save(mailboxes1);
         repository.save(mailboxes2);
-
+    }
     }
 
     @Override
@@ -117,10 +132,6 @@ public class MailboxesServiceImpl implements MailboxesService {
 
     }
 
-    private void returnedNotification(Notification notification, Message message){
-
-
-    }
     @Override
     public List<Mailbox> viewAllOutboxes(String email) {
         Mailboxes mailboxes=  repository.findById(email).orElseThrow(
@@ -133,8 +144,46 @@ public class MailboxesServiceImpl implements MailboxesService {
                 .collect(Collectors.toList());
     }
 
+
+
     @Override
-    public Notification sendNotification(Notification notification) {
-       return  notification;
+    public void checkReadMessage(Message incomingMessage) {
+
+   Optional<Notification> notification=notificationRepository.findById(incomingMessage.getMessageId());
+
+   if(notification.isPresent()) {
+       notification.get().getMessage().setRead(true);
+       notificationRepository.save(notification.get());
+       for (int i = 0; i < incomingMessage.getReceivers().size(); i++) {
+
+           User user = userRepository.findById(incomingMessage.getReceivers().get(i)).orElseThrow();
+           if(user.isLoggedIn()) {
+               for (int j = 0; j < user.getNewNotifications().size(); j++) {
+                   if (Objects.equals(user.getNewNotifications().get(j)
+                           .getMessageId(), notification.get().getMessageId())) {
+
+                       user.getNewNotifications().get(j).getMessage().setRead(true);
+
+                       user.getNewNotifications().remove(notification.get());
+                       userRepository.save(user);
+
+                   }
+               }
+           }
+
+
+            Mailboxes mailboxes =  repository.findById(incomingMessage.
+                    getReceivers().get(i)).orElseThrow();
+
+            if(Objects.equals(incomingMessage.getMessageId(),
+                    mailboxes.getMailbox().get(i).getMessageId())) {
+                mailboxes.getMailbox().get(i).getMessage().get(i).setRead(true);
+                repository.save(mailboxes);
+            }
+       }
+   }
+
+
+
     }
 }

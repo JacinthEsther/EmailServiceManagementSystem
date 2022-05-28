@@ -20,7 +20,7 @@ public interface UserService {
 
     List<User> findAllUsers();
 
-    void setNotification(Notification notification);
+
 
 
 //    void getNewNotifications(Notification notification);

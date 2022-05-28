@@ -16,5 +16,7 @@ public interface MailboxesService {
 
     List<Mailbox> viewAllOutboxes(String email);
 
-    Notification sendNotification(Notification notification);
+
+
+    void checkReadMessage(Message incomingMessage);
 }
