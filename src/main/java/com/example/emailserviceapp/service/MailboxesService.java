@@ -17,6 +17,5 @@ public interface MailboxesService {
     List<Mailbox> viewAllOutboxes(String email);
 
 
-
-    void checkReadMessage(Message incomingMessage);
+    void checkReadMessage(Message incomingMessage, String email);
 }

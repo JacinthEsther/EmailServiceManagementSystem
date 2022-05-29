@@ -42,7 +42,7 @@ public class MessageServiceImpl implements MessageService{
     }
 
     @Override
-    public void readMessage(String messageId) {
+    public void readMessage(String messageId, String email) {
 
 
         Message incomingMessage =  messageRepository.findById(messageId).orElseThrow(()-> {
@@ -51,7 +51,7 @@ public class MessageServiceImpl implements MessageService{
         incomingMessage.setRead(true);
       Message savedMessage=  messageRepository.save(incomingMessage);
 
-        mailboxesService.checkReadMessage(savedMessage);
+        mailboxesService.checkReadMessage(savedMessage, email);
     }
 
     @Override
@@ -63,15 +63,16 @@ public class MessageServiceImpl implements MessageService{
     }
 
     @Override
-    public void sendMessage(BulkMessageRequest message, String senderEmail) {
+    public void sendMessage(BulkMessageRequest messages, String senderEmail) {
         Message incomingMessage = new Message();
-        incomingMessage.setMessageBody(message.getMessageBody());
+        incomingMessage.setMessageBody(messages.getMessageBody());
         incomingMessage.setLocalDateTime(LocalDateTime.now());
         incomingMessage.setSender(senderEmail);
 
-        for (int i = 0; i < message.getEmails().size(); i++) {
-            incomingMessage.getReceivers().add(message.getEmails().get(i));
-        }
+        messages.getEmails().forEach(email -> incomingMessage.getReceivers().add(email));
+//        for (int i = 0; i < messages.getEmails().size(); i++) {
+//            incomingMessage.getReceivers().add(messages.getEmails().get(i));
+//        }
 
       Message newMessage=  messageRepository.save(incomingMessage);
         mailboxesService.addMessages(newMessage);

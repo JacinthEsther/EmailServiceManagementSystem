@@ -8,7 +8,7 @@ public interface MessageService {
 
     void sendMessage(MessageRequest message, String senderEmail);
 
-    void readMessage(String messageId);
+    void readMessage(String messageId, String email);
 
 
     void deleteMessage(String id);

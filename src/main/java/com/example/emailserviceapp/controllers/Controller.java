@@ -59,30 +59,31 @@ public class Controller {
 
     }
 
-    @GetMapping("/{messageId}")
-    public ResponseEntity <?> readMessage( @PathVariable String messageId){
-        messageService.readMessage(messageId);
+    @GetMapping("/{messageId}/{email}")
+    public ResponseEntity <?> readMessage( @PathVariable String messageId,
+                                           @PathVariable String email){
+        messageService.readMessage(messageId, email);
         return new ResponseEntity<>("Success" ,HttpStatus.OK);
 
     }
-    @GetMapping("/{messageId}/get")
+    @GetMapping("/{messageId}")
     public ResponseEntity <?> searchMessage( @PathVariable String messageId){
-        messageService.searchForMessage(messageId);
-        return new ResponseEntity<>("Success" ,HttpStatus.OK);
+
+        return new ResponseEntity<>(messageService.searchForMessage(messageId) ,HttpStatus.OK);
 
     }
 
     @GetMapping("/inbox/{email}")
     public ResponseEntity <?> getAllInboxes(@PathVariable String email){
-        mailboxesService.viewAllInboxes(email);
-        return new ResponseEntity<>("Success" ,HttpStatus.OK);
+
+        return new ResponseEntity<>(mailboxesService.viewAllInboxes(email) ,HttpStatus.OK);
 
     }
 
     @GetMapping("/all/outbox/{email}")
     public ResponseEntity <?> getAllOutboxes(@PathVariable String email){
-        mailboxesService.viewAllOutboxes(email);
-        return new ResponseEntity<>("Success" ,HttpStatus.OK);
+
+        return new ResponseEntity<>(mailboxesService.viewAllOutboxes(email) ,HttpStatus.OK);
 
     }
 
