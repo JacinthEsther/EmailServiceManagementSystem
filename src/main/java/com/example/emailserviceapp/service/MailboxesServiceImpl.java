@@ -60,7 +60,7 @@ public class MailboxesServiceImpl implements MailboxesService {
 
     @Override
     public void addMessages(Message message) {
-        Mailboxes mailboxes1 = new Mailboxes();
+        Mailboxes mailboxes1;
 
 //      mailboxes1.getMailbox().stream()
 //              .forEach(m -> repository.findById(m.setEmail(message.getReceivers().get(i))));
@@ -149,38 +149,46 @@ public class MailboxesServiceImpl implements MailboxesService {
     @Override
     public void checkReadMessage(Message incomingMessage) {
 
-   Optional<Notification> notification=notificationRepository.findById(incomingMessage.getMessageId());
+       Optional<Notification> notification=notificationRepository
+               .findById(incomingMessage.getMessageId());
 
-   if(notification.isPresent()) {
-       notification.get().getMessage().setRead(true);
-       notificationRepository.save(notification.get());
-       for (int i = 0; i < incomingMessage.getReceivers().size(); i++) {
+       if(notification.isPresent()) {
+           notification.get().getMessage().setRead(true);
+           notificationRepository.save(notification.get());
+           for (int i = 0; i < incomingMessage.getReceivers().size(); i++) {
 
-           User user = userRepository.findById(incomingMessage.getReceivers().get(i)).orElseThrow();
-           if(user.isLoggedIn()) {
-               for (int j = 0; j < user.getNewNotifications().size(); j++) {
-                   if (Objects.equals(user.getNewNotifications().get(j)
-                           .getMessageId(), notification.get().getMessageId())) {
+               User user = userRepository.findById(incomingMessage.getReceivers().get(i)).orElseThrow();
 
-                       user.getNewNotifications().get(j).getMessage().setRead(true);
+                   for (int j = 0; j < user.getNewNotifications().size(); j++) {
+                       if (Objects.equals(user.getNewNotifications().get(j)
+                               .getMessageId(), notification.get().getMessageId())) {
 
-                       user.getNewNotifications().remove(notification.get());
-                       userRepository.save(user);
+                           user.getNewNotifications().get(j).getMessage().setRead(true);
+
+                           user.getNewNotifications().remove(user.getNewNotifications().get(j));
+                           userRepository.save(user);
+
+                   }
+               }
+
+               Mailboxes mailboxes =  repository.findById(user.getEmail()).orElseThrow();
+               for (int j = 0; j < mailboxes.getMailbox().get(i).getMessage().size(); j++) {
+
+                   if (Objects.equals(mailboxes.getMailbox().get(i).getMessage().get(j).getMessageId(),
+                           incomingMessage.getMessageId())) {
+
+                       mailboxes.getMailbox().get(i).getMessage().
+                               remove(mailboxes.getMailbox().get(i).getMessage().get(j));
+
+                       mailboxes.getMailbox().get(i).getMessage().add(incomingMessage);
+                       repository.save(mailboxes);
 
                    }
                }
            }
 
 
-            Mailboxes mailboxes =  repository.findById(incomingMessage.
-                    getReceivers().get(i)).orElseThrow();
 
-            if(Objects.equals(incomingMessage.getMessageId(),
-                    mailboxes.getMailbox().get(i).getMessageId())) {
-                mailboxes.getMailbox().get(i).getMessage().get(i).setRead(true);
-                repository.save(mailboxes);
-            }
-       }
    }
 
 

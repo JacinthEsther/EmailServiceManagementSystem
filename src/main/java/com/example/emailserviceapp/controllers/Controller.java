@@ -1,6 +1,7 @@
 package com.example.emailserviceapp.controllers;
 
 
+import com.example.emailserviceapp.dtos.LoginRequest;
 import com.example.emailserviceapp.dtos.SignUpRequest;
 import com.example.emailserviceapp.dtos.messages.BulkMessageRequest;
 import com.example.emailserviceapp.dtos.messages.MessageRequest;
@@ -43,6 +44,13 @@ public class Controller {
 
     }
 
+     @PostMapping("/login/email")
+        public ResponseEntity <?> login(@RequestBody LoginRequest request){
+            userService.login(request);
+            return new ResponseEntity<>("Success" ,HttpStatus.OK);
+
+        }
+
     @PostMapping("/send/messages/{sendersEmail}")
     public ResponseEntity <?> sendMessages(@RequestBody BulkMessageRequest message, @PathVariable
             String sendersEmail){
@@ -54,6 +62,12 @@ public class Controller {
     @GetMapping("/{messageId}")
     public ResponseEntity <?> readMessage( @PathVariable String messageId){
         messageService.readMessage(messageId);
+        return new ResponseEntity<>("Success" ,HttpStatus.OK);
+
+    }
+    @GetMapping("/{messageId}/get")
+    public ResponseEntity <?> searchMessage( @PathVariable String messageId){
+        messageService.searchForMessage(messageId);
         return new ResponseEntity<>("Success" ,HttpStatus.OK);
 
     }

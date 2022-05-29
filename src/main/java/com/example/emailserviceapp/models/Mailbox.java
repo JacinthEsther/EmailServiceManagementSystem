@@ -14,7 +14,6 @@ import java.util.List;
 @NoArgsConstructor
 public class Mailbox {
 
-    private String messageId;
     private String email;
     private List<Message> message = new ArrayList<>();
     private Type type;
