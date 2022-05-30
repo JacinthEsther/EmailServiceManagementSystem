@@ -1,6 +1,8 @@
 package com.example.emailserviceapp.models;
 
+import com.example.emailserviceapp.dtos.LoginRequest;
 import com.example.emailserviceapp.dtos.SignUpRequest;
+import com.example.emailserviceapp.dtos.SignUpResponse;
 import com.example.emailserviceapp.dtos.messages.BulkMessageRequest;
 import com.example.emailserviceapp.dtos.messages.MessageRequest;
 import com.example.emailserviceapp.service.MailboxesServiceImpl;
@@ -49,13 +51,27 @@ public class MessageTest {
 
     @Test
     void messageCanBeSentToAnotherUser(){
-        userService.signUp(user);
-        userService.signUp(user1);
+      SignUpResponse signupUser=  userService.signUp(user);
+        SignUpResponse signupUser1= userService.signUp(user1);
+
+        LoginRequest requestUser = new LoginRequest();
+        requestUser.setEmail(signupUser.getEmail());
+        requestUser.setPassword("Jacinta@5");
+
+        userService.login(requestUser);
+
+        LoginRequest requestUser1 = new LoginRequest();
+        requestUser1.setEmail(signupUser1.getEmail());
+        requestUser1.setPassword("Jacinta@5");
+
+        userService.login(requestUser1);
+
         MessageRequest message = new MessageRequest();
         message.setMessageBody("Hello how are you doing?");
         message.setRecipientEmailAddress("agbonirojacinta@gmail.com");
 
         messageService.sendMessage(message, "jacinta@gmail.com");
+
 //        Message newMessage = new Message();
 //
 //        assertThat(newMessage.getReceiver()).isEqualTo("agbonirojacinta@gmail.com");
