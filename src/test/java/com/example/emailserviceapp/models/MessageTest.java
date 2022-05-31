@@ -5,6 +5,7 @@ import com.example.emailserviceapp.dtos.SignUpRequest;
 import com.example.emailserviceapp.dtos.SignUpResponse;
 import com.example.emailserviceapp.dtos.messages.BulkMessageRequest;
 import com.example.emailserviceapp.dtos.messages.MessageRequest;
+//import com.example.emailserviceapp.dtos.messages.MessageResponse;
 import com.example.emailserviceapp.service.MailboxesServiceImpl;
 import com.example.emailserviceapp.service.MessageServiceImpl;
 import com.example.emailserviceapp.service.UserServiceImpl;
@@ -71,6 +72,7 @@ public class MessageTest {
         message.setRecipientEmailAddress("agbonirojacinta@gmail.com");
 
         messageService.sendMessage(message, "jacinta@gmail.com");
+//        MessageResponse response= new MessageResponse();
 
 //        Message newMessage = new Message();
 //

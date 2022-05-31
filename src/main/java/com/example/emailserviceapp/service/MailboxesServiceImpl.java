@@ -50,15 +50,19 @@ public class MailboxesServiceImpl implements MailboxesService {
 
       Message savedMessage=  messageRepository.save(message);
         mailbox.setType(Type.INBOX);
+        Mailbox sentBox = new Mailbox();
+        sentBox.setType(Type.SENT);
+
         mailbox.getMessage().add(savedMessage);
 
         mailboxes.setEmail(email);
         mailboxes.getMailbox().add(mailbox);
+        mailboxes.getMailbox().add(sentBox);
 
       repository.save(mailboxes);
         notification.setMessageId(savedMessage.getMessageId());
         notification.setMessage(savedMessage);
-        notification.setTitle("New Incoming Message from "+notification.getMessage().getMessageBody());
+        notification.setTitle("New Incoming Message from "+notification.getMessage().getSender());
 
         notificationRepository.save(notification);
         return notification;
@@ -67,12 +71,30 @@ public class MailboxesServiceImpl implements MailboxesService {
     @Override
     public void addMessages(Message message) {
         Mailboxes mailboxesReceivers;
-
 //
 //       message.getReceivers().forEach(receiver -> repository.findById(receiver).orElseThrow(
 //               () ->
 //                       new EmailException("email not found")
 //       ));
+        Mailboxes mailboxesSender = repository.findById(message.getSender()).
+                orElseThrow(() -> new EmailException("sender email not found"));
+
+        User mailSender = userRepository.findById(message.getSender()).orElseThrow();
+
+
+
+        if(mailSender.isLoggedIn()){
+
+      Mailbox mailboxSender= mailboxesSender.getMailbox().get(1);
+        mailboxSender.getMessage().add(message);
+        mailboxSender.setEmail(message.getSender());
+        mailboxSender.setType(Type.SENT);
+            repository.save(mailboxesSender);
+
+        }
+
+
+
         for (int i = 0; i < message.getReceivers().size(); i++) {
             mailboxesReceivers = repository.findById(message.getReceivers().get(i)).orElseThrow(
                     () ->
@@ -80,14 +102,12 @@ public class MailboxesServiceImpl implements MailboxesService {
             );
 
 
-            Mailboxes mailboxesSender = repository.findById(message.getSender()).
-                    orElseThrow(() -> new EmailException("sender email not found"));
 
 
             User user = userRepository.findById(message.getReceivers().get(i)).orElseThrow();
 
             if(user.isLoggedIn()) {
-                Mailbox receivers = new Mailbox();
+             Mailbox receivers=   mailboxesReceivers.getMailbox().get(0);
 
                 receivers.getMessage().add(message);
 
@@ -97,31 +117,22 @@ public class MailboxesServiceImpl implements MailboxesService {
 
                 Notification notification = new Notification();
 
-                Mailbox sender = new Mailbox();
-
-                sender.getMessage().add(message);
-
-                sender.setEmail(message.getSender());
-                sender.setType(Type.SENT);
-
-
-                mailboxesReceivers.getMailbox().add(receivers);
-                mailboxesSender.getMailbox().add(sender);
 
                 notification.setMessageId(message.getMessageId());
 
 
                 notification.setMessage(message);
-                notification.setTitle("New Incoming Message from " + notification.getMessage());
+                notification.setTitle("New Incoming Message from " + notification.getMessage()
+                        .getSender());
                 Notification savedNotification = notificationRepository.save(notification);
                 user.getNewNotifications().add(savedNotification);
                 userRepository.save(user);
 
 
                 repository.save(mailboxesReceivers);
-                repository.save(mailboxesSender);
             }
         else throw new EmailException("user is not logged in");
+
 
 
     }
@@ -168,15 +179,16 @@ public class MailboxesServiceImpl implements MailboxesService {
     @Override
     public void checkReadMessage(Message incomingMessage, String email) {
 
-       Optional<Notification> notification= notificationRepository
-               .findById(incomingMessage.getMessageId());
 
-       if(notification.isPresent()) {
-           notification.get().getMessage().setRead(true);
-        Notification savedNotification= notificationRepository.save(notification.get());
 
            User user = userRepository.findById(email).orElseThrow();
         if(user.isLoggedIn()) {
+            Optional<Notification> notification= notificationRepository
+                    .findById(incomingMessage.getMessageId());
+
+            if(notification.isPresent()) {
+                notification.get().getMessage().setRead(true);
+                Notification savedNotification= notificationRepository.save(notification.get());
             for (int i = 0; i < user.getNewNotifications().size(); i++) {
                 if (Objects.equals(user.getNewNotifications().get(i).getMessageId(),
                         savedNotification.getMessageId())) {
