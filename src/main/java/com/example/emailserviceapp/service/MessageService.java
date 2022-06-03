@@ -6,7 +6,7 @@ import com.example.emailserviceapp.models.Message;
 
 public interface MessageService {
 
-    void sendMessage(MessageRequest message, String senderEmail);
+    String sendMessage(MessageRequest message, String senderEmail);
 
     void readMessage(String messageId, String email);
 
@@ -16,4 +16,6 @@ public interface MessageService {
     void sendMessage(BulkMessageRequest message, String senderEmail);
 
     Message searchForMessage(String id);
+
+
 }

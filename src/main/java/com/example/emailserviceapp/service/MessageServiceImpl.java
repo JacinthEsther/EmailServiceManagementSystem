@@ -3,9 +3,7 @@ package com.example.emailserviceapp.service;
 import com.example.emailserviceapp.dtos.messages.BulkMessageRequest;
 import com.example.emailserviceapp.dtos.messages.MessageRequest;
 import com.example.emailserviceapp.exceptions.EmailException;
-import com.example.emailserviceapp.models.Mailbox;
 import com.example.emailserviceapp.models.Message;
-import com.example.emailserviceapp.models.Type;
 import com.example.emailserviceapp.repositories.MessageRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,12 +20,12 @@ public class MessageServiceImpl implements MessageService{
 
 
     @Autowired
-    MailboxesServiceImpl mailboxesService;
+    MailboxesService mailboxesService;
 
 
 
     @Override
-    public void sendMessage(MessageRequest message, String senderEmail) {
+    public String sendMessage(MessageRequest message, String senderEmail) {
         Message incomingMessage = new Message();
         incomingMessage.setMessageBody(message.getMessageBody());
         incomingMessage.setLocalDateTime(LocalDateTime.now());
@@ -39,6 +37,7 @@ public class MessageServiceImpl implements MessageService{
        Message newMessage= messageRepository.save(incomingMessage);
         mailboxesService.addMessages(newMessage);
 
+        return "message sent successfully";
     }
 
     @Override

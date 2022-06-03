@@ -69,7 +69,7 @@ public class MailboxesServiceImpl implements MailboxesService {
     }
 
     @Override
-    public void addMessages(Message message) {
+    public void  addMessages(Message message) {
         Mailboxes mailboxesReceivers;
 //
 //       message.getReceivers().forEach(receiver -> repository.findById(receiver).orElseThrow(

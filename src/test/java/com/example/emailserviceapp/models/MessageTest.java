@@ -5,10 +5,7 @@ import com.example.emailserviceapp.dtos.SignUpRequest;
 import com.example.emailserviceapp.dtos.SignUpResponse;
 import com.example.emailserviceapp.dtos.messages.BulkMessageRequest;
 import com.example.emailserviceapp.dtos.messages.MessageRequest;
-//import com.example.emailserviceapp.dtos.messages.MessageResponse;
-import com.example.emailserviceapp.service.MailboxesServiceImpl;
-import com.example.emailserviceapp.service.MessageServiceImpl;
-import com.example.emailserviceapp.service.UserServiceImpl;
+import com.example.emailserviceapp.service.*;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -23,13 +20,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class MessageTest {
 
     @Autowired
-    MessageServiceImpl messageService;
+    MessageService messageService;
 
     @Autowired
-    UserServiceImpl userService;
+    UserService userService;
 
     @Autowired
-    MailboxesServiceImpl mailboxesService;
+    MailboxesService mailboxesService;
 
     private SignUpRequest user;
     private SignUpRequest user1;
@@ -71,14 +68,10 @@ public class MessageTest {
         message.setMessageBody("Hello how are you doing?");
         message.setRecipientEmailAddress("agbonirojacinta@gmail.com");
 
-        messageService.sendMessage(message, "jacinta@gmail.com");
-//        MessageResponse response= new MessageResponse();
+       String response=messageService.sendMessage(message, "jacinta@gmail.com");
 
-//        Message newMessage = new Message();
-//
-//        assertThat(newMessage.getReceiver()).isEqualTo("agbonirojacinta@gmail.com");
-//        assertThat(newMessage.getSender()).isEqualTo("jacinta@gmail.com");
-//        assertThat(newMessage.getMessageBody()).isEqualTo("Hello how are you doing?");
+     assertThat(response).isEqualTo("message sent successfully");
+
 
     }
 

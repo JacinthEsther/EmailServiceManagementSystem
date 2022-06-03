@@ -20,6 +20,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("api/v1/emailService")
+@CrossOrigin(origins = "http://localhost:3000/")
 public class Controller {
     @Autowired
     private UserServiceImpl userService;
