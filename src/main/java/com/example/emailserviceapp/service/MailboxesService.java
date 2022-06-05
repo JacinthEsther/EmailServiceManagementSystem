@@ -12,9 +12,9 @@ public interface MailboxesService {
 
     void addMessages(Message message);
 
-    List<Mailbox> viewAllInboxes(String email);
+    List<Message> viewAllInboxes(String email);
 
-    List<Mailbox> viewAllOutboxes(String email);
+    List<Message> viewAllOutboxes(String email);
 
 
     void checkReadMessage(Message incomingMessage, String email);

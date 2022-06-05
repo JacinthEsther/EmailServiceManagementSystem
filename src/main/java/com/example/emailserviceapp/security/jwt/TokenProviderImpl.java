@@ -6,6 +6,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -16,6 +17,7 @@ import java.util.stream.Collectors;
 import static com.example.emailserviceapp.security.jwt.SecurityConstants.AUTHORITIES_KEY;
 import static com.example.emailserviceapp.security.jwt.SecurityConstants.SIGNING_KEY;
 
+@Service
 public class TokenProviderImpl implements TokenProvider{
     private final static Long TOKEN_VALIDITY_PERIOD = (long) (24 * 10 * 3600);
 
@@ -63,15 +65,13 @@ public class TokenProviderImpl implements TokenProvider{
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.joining(","));
 
-        String jwt= Jwts.builder()
+        return Jwts.builder()
                 .setSubject(authentication.getName())
                 .claim(AUTHORITIES_KEY, authorities)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + TOKEN_VALIDITY_PERIOD ))
                 .signWith(SignatureAlgorithm.HS256, SIGNING_KEY)
                 .compact();
-
-        return jwt;
     }
 
     @Override

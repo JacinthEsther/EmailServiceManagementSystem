@@ -139,7 +139,7 @@ public class MailboxesServiceImpl implements MailboxesService {
     }
 
     @Override
-    public List<Mailbox> viewAllInboxes(String email) {
+    public List<Message> viewAllInboxes(String email) {
       Mailboxes mailboxes=  repository.findById(email).orElseThrow(
               ()-> new EmailException("email does not exist")
       );
@@ -147,18 +147,15 @@ public class MailboxesServiceImpl implements MailboxesService {
                 ()-> new EmailException("user not found")
         );
         if(user.isLoggedIn()) {
+          return  mailboxes.getMailbox().get(0).getMessage().stream().toList();
 
-        return mailboxes.getMailbox().stream()
-                .parallel()
-                .filter(mailbox-> mailbox.getType()==Type.INBOX)
-                .collect(Collectors.toList());
         }
         throw new EmailException("user is not logged in");
 
     }
 
     @Override
-    public List<Mailbox> viewAllOutboxes(String email) {
+    public List<Message> viewAllOutboxes(String email) {
         Mailboxes mailboxes=  repository.findById(email).orElseThrow(
                 ()-> new EmailException("email does not exist")
         );
@@ -166,10 +163,8 @@ public class MailboxesServiceImpl implements MailboxesService {
                 ()-> new EmailException("user not found")
         );
         if(user.isLoggedIn()) {
-            return mailboxes.getMailbox().stream()
-                    .parallel()
-                    .filter(mailbox -> mailbox.getType() == Type.SENT)
-                    .collect(Collectors.toList());
+            return  mailboxes.getMailbox().get(1).getMessage().stream().toList();
+
         }
         throw new EmailException("user is not logged in");
     }

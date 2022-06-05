@@ -20,27 +20,16 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
-public class EmailSecurityConfig {
+public class EmailSecurityConfig extends WebSecurityConfigurerAdapter{
 
     @Autowired
     UserDetailsService userDetailsService;
 
     @Autowired
     UnAuthorizedEntryPoint unAuthorizedEntryPoint;
-//
-//    @Bean
-//    public UserDetailsService userDetailsService() {
-//        return new userDetailsService();
-//    }
 
-    @Bean
-    public BCryptPasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
-
-    @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-
+    @Override
+    protected void configure(HttpSecurity http) throws Exception {
         http
                 .cors()
                 .and()
@@ -48,7 +37,7 @@ public class EmailSecurityConfig {
                 .disable()
                 .authorizeHttpRequests(authorize -> {
                     try {
-                        authorize.antMatchers("")
+                        authorize.antMatchers("/api/v1/emailService/sign-up", "/api/v1/emailService/login")
                                 .permitAll()
                                 .anyRequest()
                                 .authenticated()
@@ -65,43 +54,7 @@ public class EmailSecurityConfig {
                         throw new RuntimeException(e.getMessage());
                     }
                 });
-        return http.build();
     }
-
-
-
-    @Bean
-    public WebSecurityCustomizer webSecurityCustomizer() {
-        return (web) -> web.ignoring().antMatchers("/images/**", "/js/**", "/webjars/**");
-    }
-
-//    @Override
-//    protected void configure(HttpSecurity http) throws Exception {
-//        http
-//                .cors()
-//                .and()
-//                .csrf()
-//                .disable()
-//                .authorizeHttpRequests(authorize -> {
-//                    try {
-//                        authorize.antMatchers("")
-//                                .permitAll()
-//                                .anyRequest()
-//                                .authenticated()
-//                                .and()
-//                                .exceptionHandling().authenticationEntryPoint(unAuthorizedEntryPoint)
-//                                .and()
-//                                .sessionManagement()
-//                                .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-//
-//                        http.addFilterBefore(authenticationTokenFilterBean(), UsernamePasswordAuthenticationFilter.class);
-//                        http.addFilterBefore(exceptionHandlerFilterBean(), JwtAuthenticationFilter.class);
-//
-//                    } catch (Exception e) {
-//                        throw new RuntimeException(e.getMessage());
-//                    }
-//                });
-//    }
     @Bean
     public JwtAuthenticationFilter authenticationTokenFilterBean(){
         return new JwtAuthenticationFilter();
@@ -111,16 +64,16 @@ public class EmailSecurityConfig {
     public ExceptionHandlerFilter exceptionHandlerFilterBean(){
         return new ExceptionHandlerFilter();
     }
-//
-//    @Override
-//    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-//        auth.userDetailsService(userDetailsService).passwordEncoder(bCryptPasswordEncoder());
-//    }
 
-//    @Bean
-//    public AuthenticationManager authenticationManagerBean() throws Exception {
-//        return super.authenticationManagerBean();
-//    }
+    @Override
+    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+        auth.userDetailsService(userDetailsService).passwordEncoder(bCryptPasswordEncoder());
+    }
+
+    @Bean
+    public AuthenticationManager authenticationManagerBean() throws Exception {
+        return super.authenticationManagerBean();
+    }
 
     @Bean
     public BCryptPasswordEncoder bCryptPasswordEncoder(){

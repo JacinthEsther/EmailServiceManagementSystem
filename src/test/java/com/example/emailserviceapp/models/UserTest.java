@@ -2,6 +2,7 @@ package com.example.emailserviceapp.models;
 
 import com.example.emailserviceapp.dtos.*;
 import com.example.emailserviceapp.exceptions.EmailException;
+import com.example.emailserviceapp.service.UserService;
 import com.example.emailserviceapp.service.UserServiceImpl;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -18,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 class UserTest {
 
     @Autowired
- private UserServiceImpl userService;
+ private UserService userService;
 
     private  SignUpRequest user;
     @BeforeEach

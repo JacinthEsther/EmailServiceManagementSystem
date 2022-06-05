@@ -9,11 +9,17 @@ import com.example.emailserviceapp.repositories.UserRepository;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+//import org.springframework.security.core.GrantedAuthority;
+//import org.springframework.security.core.authority.SimpleGrantedAuthority;
+//import org.springframework.security.core.userdetails.UserDetails;
+//import org.springframework.security.core.userdetails.UserDetailsService;
+//import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -26,12 +32,14 @@ import java.util.stream.Collectors;
 
 @Service
 @Slf4j
-public class UserServiceImpl implements UserService, UserDetailsService {
+public class UserServiceImpl implements UserService , UserDetailsService {
 
     @Autowired
     private UserRepository userRepository;
     @Autowired
-    private MailboxesServiceImpl service;
+    private MailboxesService service;
+//    @Autowired
+//    private BCryptPasswordEncoder bCryptPasswordEncoder;
 
     @Override
     public SignUpResponse signUp(SignUpRequest request) {
@@ -101,14 +109,14 @@ public class UserServiceImpl implements UserService, UserDetailsService {
       User user=  userRepository.findById(loginRequest.getEmail())
               .orElseThrow(()->new EmailException("user not found"));
         if(!user.isLoggedIn()) {
-            if (user.getPassword().equals(loginRequest.getPassword())) {
+//            if (user.getPassword().equals(loginRequest.getPassword())) {
                 user.setLoggedIn(true);
                 User savedUser = userRepository.save(user);
 
                 LoginResponse response = new LoginResponse();
                 response.setMessage("Welcome " + savedUser.getEmail());
                 return response;
-            } else throw new EmailException("Invalid Details");
+//            } else throw new EmailException("Invalid Details");
         }
         return new LoginResponse("user already logged in");
     }

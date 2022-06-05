@@ -4,12 +4,21 @@ package com.example.emailserviceapp.controllers;
 import com.example.emailserviceapp.dtos.*;
 import com.example.emailserviceapp.dtos.messages.BulkMessageRequest;
 import com.example.emailserviceapp.dtos.messages.MessageRequest;
-import com.example.emailserviceapp.service.MailboxesServiceImpl;
-import com.example.emailserviceapp.service.MessageServiceImpl;
-import com.example.emailserviceapp.service.UserServiceImpl;
+//import com.example.emailserviceapp.security.jwt.TokenProvider;
+import com.example.emailserviceapp.exceptions.EmailException;
+import com.example.emailserviceapp.models.User;
+import com.example.emailserviceapp.security.jwt.TokenProvider;
+import com.example.emailserviceapp.service.*;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+//import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
@@ -18,20 +27,30 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RestController
-@RequestMapping("api/v1/emailService")
+@Slf4j
+@RequestMapping("/api/v1/emailService")
 @CrossOrigin(origins = "http://localhost:3000/")
 public class Controller {
     @Autowired
     private UserServiceImpl userService;
+    @Autowired
+    private AuthenticationManager authenticationManager;
 
     @Autowired
-    private MessageServiceImpl messageService;
+    private TokenProvider tokenProvider;
 
     @Autowired
-    private MailboxesServiceImpl mailboxesService;
+    private BCryptPasswordEncoder bCryptPasswordEncoder;
+
+    @Autowired
+    private MessageService messageService;
+
+    @Autowired
+    private MailboxesService mailboxesService;
 
     @PostMapping("/sign-up")
     public ResponseEntity<?> signup(@RequestBody SignUpRequest request){
+        request.setPassword(bCryptPasswordEncoder.encode(request.getPassword()));
         SignUpResponse userDto = userService.signUp(request);
 
         ApiResponse response = ApiResponse.builder()
@@ -52,16 +71,36 @@ public class Controller {
 
     }
 
-     @PostMapping("/login/email")
+     @PostMapping("/login")
         public ResponseEntity <?> login(@RequestBody LoginRequest request){
-          LoginResponse userDto= userService.login(request);
-         ApiResponse response = ApiResponse.builder()
-                 .payLoad(userDto)
-                 .isSuccessful(true)
-                 .statusCode(200)
-                 .message("welcome "+request.getEmail())
-                 .build();
-            return new ResponseEntity<>(response ,HttpStatus.ACCEPTED);
+        User user= userService.findUserBy(request.getEmail());
+        if (bCryptPasswordEncoder.matches(user.getPassword(),request.getPassword())) {
+            LoginResponse userDto = userService.login(request);
+            ApiResponse response = ApiResponse.builder()
+                    .payLoad(userDto)
+                    .isSuccessful(true)
+                    .statusCode(200)
+                    .message("welcome " + request.getEmail())
+                    .build();
+
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(request.getEmail(),
+                            request.getPassword())
+
+            );
+
+
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+
+            final String token = tokenProvider.generateJWTToken(authentication);
+//         User user= userService.findUserBy(request.getEmail());
+            return new ResponseEntity<>(new AuthToken(response.getMessage()), HttpStatus.OK);
+        }
+
+       else throw new EmailException("user not found");
+
+
+//            return new ResponseEntity<>(response ,HttpStatus.ACCEPTED);
 
         }
 

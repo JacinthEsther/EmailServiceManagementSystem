@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 @Service
 @Slf4j
@@ -26,18 +27,24 @@ public class MessageServiceImpl implements MessageService{
 
     @Override
     public String sendMessage(MessageRequest message, String senderEmail) {
-        Message incomingMessage = new Message();
-        incomingMessage.setMessageBody(message.getMessageBody());
-        incomingMessage.setLocalDateTime(LocalDateTime.now());
-        incomingMessage.setSender(senderEmail);
+        if(Optional.ofNullable(message.getMessageBody()).isEmpty()) {
+
+        throw new EmailException("Message body cannot be empty");
+        }
+            Message incomingMessage = new Message();
+
+            incomingMessage.setMessageBody(message.getMessageBody());
+            incomingMessage.setLocalDateTime(LocalDateTime.now());
+            incomingMessage.setSender(senderEmail);
 
 
-        incomingMessage.getReceivers().add(message.getRecipientEmailAddress());
+            incomingMessage.getReceivers().add(message.getRecipientEmailAddress());
 
-       Message newMessage= messageRepository.save(incomingMessage);
-        mailboxesService.addMessages(newMessage);
+            Message newMessage = messageRepository.save(incomingMessage);
+            mailboxesService.addMessages(newMessage);
 
-        return "message sent successfully";
+            return "message sent successfully";
+
     }
 
     @Override
