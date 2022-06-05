@@ -3,24 +3,30 @@ package com.example.emailserviceapp.service;
 
 import com.example.emailserviceapp.dtos.*;
 import com.example.emailserviceapp.exceptions.EmailException;
-import com.example.emailserviceapp.models.Mailbox;
-import com.example.emailserviceapp.models.Mailboxes;
-import com.example.emailserviceapp.models.Notification;
-import com.example.emailserviceapp.models.User;
+import com.example.emailserviceapp.models.*;
 import com.example.emailserviceapp.repositories.NotificationRepository;
 import com.example.emailserviceapp.repositories.UserRepository;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
-public class UserServiceImpl implements UserService {
+public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Autowired
     private UserRepository userRepository;
@@ -161,4 +167,20 @@ public class UserServiceImpl implements UserService {
         return email;
     }
 
+    @SneakyThrows
+    @Override
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+      User user =userRepository.findById(email).orElseThrow(()-> new EmailException("user not found"));
+        return new org.springframework.security.core.userdetails.User(
+                user.getEmail(),user.getPassword(),
+
+                getAuthorities(user.getRoles()));
+    }
+
+
+    private Collection<? extends GrantedAuthority> getAuthorities(Set<Role> roles) {
+        return roles.stream().map(
+                role-> new SimpleGrantedAuthority(role.getRoleType().name())
+        ).collect(Collectors.toSet());
+    }
 }

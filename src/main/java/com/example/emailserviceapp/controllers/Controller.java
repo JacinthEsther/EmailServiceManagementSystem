@@ -1,8 +1,7 @@
 package com.example.emailserviceapp.controllers;
 
 
-import com.example.emailserviceapp.dtos.LoginRequest;
-import com.example.emailserviceapp.dtos.SignUpRequest;
+import com.example.emailserviceapp.dtos.*;
 import com.example.emailserviceapp.dtos.messages.BulkMessageRequest;
 import com.example.emailserviceapp.dtos.messages.MessageRequest;
 import com.example.emailserviceapp.service.MailboxesServiceImpl;
@@ -33,7 +32,15 @@ public class Controller {
 
     @PostMapping("/sign-up")
     public ResponseEntity<?> signup(@RequestBody SignUpRequest request){
-        return new ResponseEntity<>(userService.signUp(request), HttpStatus.CREATED);
+        SignUpResponse userDto = userService.signUp(request);
+
+        ApiResponse response = ApiResponse.builder()
+                .payLoad(userDto)
+                .isSuccessful(true)
+                .statusCode(201)
+                .message("user created successfully")
+                .build();
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
 
     }
 
@@ -47,8 +54,14 @@ public class Controller {
 
      @PostMapping("/login/email")
         public ResponseEntity <?> login(@RequestBody LoginRequest request){
-            userService.login(request);
-            return new ResponseEntity<>("Success" ,HttpStatus.OK);
+          LoginResponse userDto= userService.login(request);
+         ApiResponse response = ApiResponse.builder()
+                 .payLoad(userDto)
+                 .isSuccessful(true)
+                 .statusCode(200)
+                 .message("welcome "+request.getEmail())
+                 .build();
+            return new ResponseEntity<>(response ,HttpStatus.ACCEPTED);
 
         }
 

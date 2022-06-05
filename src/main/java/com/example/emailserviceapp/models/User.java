@@ -8,7 +8,9 @@ import org.springframework.validation.annotation.Validated;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotEmpty;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 
 @Getter
@@ -29,4 +31,5 @@ public class User {
     private String fullName;
     private boolean isLoggedIn;
     private List<Notification> newNotifications;
+    private Set<Role> roles = new HashSet<>();
 }
