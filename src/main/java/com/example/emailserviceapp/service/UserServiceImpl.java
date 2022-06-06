@@ -45,8 +45,9 @@ public class UserServiceImpl implements UserService , UserDetailsService {
     public SignUpResponse signUp(SignUpRequest request) {
         String email = email(request.getEmail());
 
-        String password = password(request.getPassword());
 
+        String password = password(request.getPassword());
+        log.info("password is --> {}", password);
         User user =User.builder()
                 .password(password)
                 .email(email)
@@ -149,6 +150,7 @@ public class UserServiceImpl implements UserService , UserDetailsService {
 
 
     private String password(String request) {
+
         String password="";
         String regex1 = "^(?=[^A-Z\\s]*[A-Z])(?=[^a-z\\s]*[a-z])(?=[^\\d\\s]*\\d)(?=\\w*[\\W_])\\S{8,}$";
 
@@ -159,6 +161,7 @@ public class UserServiceImpl implements UserService , UserDetailsService {
         }
         else throw new EmailException("password must contain at Least Eight Characters" +
                 "with at least one Special Character, Capital and Small Letter ");
+        log.info("password method --> {}", password);
         return password;
     }
 

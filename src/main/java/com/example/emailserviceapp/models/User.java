@@ -19,6 +19,7 @@ import java.util.Set;
 @NoArgsConstructor
 @Builder
 @Document
+@ToString
 public class User {
     @Id
     @Email

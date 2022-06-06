@@ -49,7 +49,7 @@ public class Controller {
     private MailboxesService mailboxesService;
 
     @PostMapping("/sign-up")
-    public ResponseEntity<?> signup(@RequestBody SignUpRequest request){
+    public ResponseEntity<?> signup(@RequestBody SignUpRequest request) {
         request.setPassword(bCryptPasswordEncoder.encode(request.getPassword()));
         SignUpResponse userDto = userService.signUp(request);
 
@@ -64,17 +64,19 @@ public class Controller {
     }
 
     @PostMapping("/sendMessage/{sendersEmail}")
-    public ResponseEntity <?> sendMessage(@RequestBody MessageRequest message,@PathVariable
-            String sendersEmail){
-        messageService.sendMessage(message,sendersEmail);
-        return new ResponseEntity<>("Success" ,HttpStatus.OK);
+    public ResponseEntity<?> sendMessage(@RequestBody MessageRequest message, @PathVariable
+            String sendersEmail) {
+        messageService.sendMessage(message, sendersEmail);
+        return new ResponseEntity<>("Success", HttpStatus.OK);
 
     }
 
-     @PostMapping("/login")
-        public ResponseEntity <?> login(@RequestBody LoginRequest request){
-        User user= userService.findUserBy(request.getEmail());
-        if (bCryptPasswordEncoder.matches(user.getPassword(),request.getPassword())) {
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody LoginRequest request) {
+        User user = userService.findUserBy(request.getEmail());
+
+        if (bCryptPasswordEncoder.matches(request.getPassword(), user.getPassword())) {
+            log.info("match");
             LoginResponse userDto = userService.login(request);
             ApiResponse response = ApiResponse.builder()
                     .payLoad(userDto)
@@ -95,48 +97,47 @@ public class Controller {
             final String token = tokenProvider.generateJWTToken(authentication);
 //         User user= userService.findUserBy(request.getEmail());
             return new ResponseEntity<>(new AuthToken(response.getMessage()), HttpStatus.OK);
-        }
-
-       else throw new EmailException("user not found");
+        } else throw new EmailException("user not found");
 
 
 //            return new ResponseEntity<>(response ,HttpStatus.ACCEPTED);
 
-        }
+    }
 
     @PostMapping("/send/messages/{sendersEmail}")
-    public ResponseEntity <?> sendMessages(@RequestBody BulkMessageRequest message, @PathVariable
-            String sendersEmail){
-        messageService.sendMessage(message,sendersEmail);
-        return new ResponseEntity<>("Success" ,HttpStatus.OK);
+    public ResponseEntity<?> sendMessages(@RequestBody BulkMessageRequest message, @PathVariable
+            String sendersEmail) {
+        messageService.sendMessage(message, sendersEmail);
+        return new ResponseEntity<>("Success", HttpStatus.OK);
 
     }
 
     @GetMapping("/{messageId}/{email}")
-    public ResponseEntity <?> readMessage( @PathVariable String messageId,
-                                           @PathVariable String email){
+    public ResponseEntity<?> readMessage(@PathVariable String messageId,
+                                         @PathVariable String email) {
         messageService.readMessage(messageId, email);
-        return new ResponseEntity<>("Success" ,HttpStatus.OK);
+        return new ResponseEntity<>("Success", HttpStatus.OK);
 
     }
-    @GetMapping("/{messageId}")
-    public ResponseEntity <?> searchMessage( @PathVariable String messageId){
 
-        return new ResponseEntity<>(messageService.searchForMessage(messageId) ,HttpStatus.OK);
+    @GetMapping("/{messageId}")
+    public ResponseEntity<?> searchMessage(@PathVariable String messageId) {
+
+        return new ResponseEntity<>(messageService.searchForMessage(messageId), HttpStatus.OK);
 
     }
 
     @GetMapping("/inbox/{email}")
-    public ResponseEntity <?> getAllInboxes(@PathVariable String email){
+    public ResponseEntity<?> getAllInboxes(@PathVariable String email) {
 
-        return new ResponseEntity<>(mailboxesService.viewAllInboxes(email) ,HttpStatus.OK);
+        return new ResponseEntity<>(mailboxesService.viewAllInboxes(email), HttpStatus.OK);
 
     }
 
     @GetMapping("/all/outbox/{email}")
-    public ResponseEntity <?> getAllOutboxes(@PathVariable String email){
+    public ResponseEntity<?> getAllOutboxes(@PathVariable String email) {
 
-        return new ResponseEntity<>(mailboxesService.viewAllOutboxes(email) ,HttpStatus.OK);
+        return new ResponseEntity<>(mailboxesService.viewAllOutboxes(email), HttpStatus.OK);
 
     }
 
@@ -146,15 +147,15 @@ public class Controller {
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public Map<String, String> handleValidationExceptions(MethodArgumentNotValidException exception){
+    public Map<String, String> handleValidationExceptions(MethodArgumentNotValidException exception) {
         Map<String, String> errors = new HashMap();
         exception.getBindingResult().getAllErrors().forEach(
-                (error ->{
-                    String fieldName= ((FieldError)error).getField();
+                (error -> {
+                    String fieldName = ((FieldError) error).getField();
                     String errorMessage = error.getDefaultMessage();
                     errors.put(fieldName, errorMessage);
                 })
         );
         return errors;
     }
- }
+}
