@@ -13,4 +13,6 @@ import lombok.Setter;
 public class AuthToken {
 
     private String token;
+
+    private String email;
 }

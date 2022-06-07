@@ -76,7 +76,6 @@ public class Controller {
         User user = userService.findUserBy(request.getEmail());
 
         if (bCryptPasswordEncoder.matches(request.getPassword(), user.getPassword())) {
-            log.info("match");
             LoginResponse userDto = userService.login(request);
             ApiResponse response = ApiResponse.builder()
                     .payLoad(userDto)
@@ -93,10 +92,9 @@ public class Controller {
 
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
-
-            final String token = tokenProvider.generateJWTToken(authentication);
-//         User user= userService.findUserBy(request.getEmail());
-            return new ResponseEntity<>(new AuthToken(response.getMessage()), HttpStatus.OK);
+            final String token= tokenProvider.generateJWTToken(authentication);
+            return new ResponseEntity<>(new AuthToken(token, user.getEmail()), HttpStatus.OK);
+//            return new ResponseEntity<>(new AuthToken(response.getMessage()), HttpStatus.OK);
         } else throw new EmailException("user not found");
 
 
