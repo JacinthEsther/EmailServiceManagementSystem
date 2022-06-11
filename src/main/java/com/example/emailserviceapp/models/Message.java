@@ -14,6 +14,7 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 @Document
+@EqualsAndHashCode
 public class Message {
     @Id
     private String messageId;

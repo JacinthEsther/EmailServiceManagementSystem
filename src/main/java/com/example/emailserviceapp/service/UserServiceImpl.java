@@ -47,7 +47,7 @@ public class UserServiceImpl implements UserService , UserDetailsService {
 
 
         String password = password(request.getPassword());
-        log.info("password is --> {}", password);
+//        log.info("password is --> {}", password);
         User user =User.builder()
                 .password(password)
                 .email(email)
@@ -161,7 +161,7 @@ public class UserServiceImpl implements UserService , UserDetailsService {
         }
         else throw new EmailException("password must contain at Least Eight Characters" +
                 "with at least one Special Character, Capital and Small Letter ");
-        log.info("password method --> {}", password);
+//        log.info("password method --> {}", password);
         return password;
     }
 

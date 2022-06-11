@@ -264,7 +264,6 @@ public class MessageTest {
          List<Message> inbox= mailboxesService.viewAllInboxes("agbonirojacinta@gmail.com");
             assertThat(inbox.size()).isEqualTo(2);
 
-            //todo: complete delete implementation
             messageService.deleteMessageFromInbox(newMessage.getMessageId(),"agbonirojacinta@gmail.com");
 
 

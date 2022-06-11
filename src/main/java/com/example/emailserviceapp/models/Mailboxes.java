@@ -13,6 +13,8 @@ import java.util.ArrayList;
 @NoArgsConstructor
 @AllArgsConstructor
 @Document
+@EqualsAndHashCode
+@ToString
 public class Mailboxes {
     @Id
     private String email;

@@ -12,11 +12,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Service
 @Slf4j
@@ -194,15 +192,15 @@ public class MailboxesServiceImpl implements MailboxesService {
             Mailboxes mailboxes = repository.findById(email).orElseThrow();
 
             ArrayList<Mailbox> mailboxes2 = mailboxes.getMailbox();
-            for (Mailbox mailbox : mailboxes2) {
-                for (int j = 0; j < mailbox.getMessage().size(); j++) {
-                    if (Objects.equals(mailbox.getMessage()
-                            .get(j).getMessageId(), incomingMessage.getMessageId())) {
-                        mailbox.getMessage().get(j).setRead(true);
+                for (Mailbox mailbox : mailboxes2) {
+                    for (int j = 0; j < mailbox.getMessage().size(); j++) {
+                        if (Objects.equals(mailbox.getMessage()
+                                .get(j).getMessageId(), incomingMessage.getMessageId())) {
+                            mailbox.getMessage().get(j).setRead(true);
+                        }
+                        repository.save(mailboxes);
                     }
-                    repository.save(mailboxes);
                 }
-            }
         }
 
    }
@@ -220,10 +218,15 @@ public class MailboxesServiceImpl implements MailboxesService {
                 ()-> new EmailException("user not found")
         );
         if(user.isLoggedIn()){
-        List <Message> messageToBeDeleted=   mailboxes.getMailbox().get(0).getMessage();
-            for (int i = 0; i < messageToBeDeleted.size(); i++) {
+            List <Message> messageToBeDeleted=   mailboxes.getMailbox().get(0).getMessage();
+                IntStream.range(0, messageToBeDeleted.size()).filter(i -> Objects.equals(messageToBeDeleted
+                                .get(i).getMessageId(), message.getMessageId())).
+                        forEachOrdered(i -> messageToBeDeleted.remove(messageToBeDeleted.get(i)));
 
-            }
+
+                repository.save(mailboxes);
+
+
         }
     }
 }
