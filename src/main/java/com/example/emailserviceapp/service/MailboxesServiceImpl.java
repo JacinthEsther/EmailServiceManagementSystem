@@ -174,8 +174,6 @@ public class MailboxesServiceImpl implements MailboxesService {
     @Override
     public void checkReadMessage(Message incomingMessage, String email) {
 
-
-
            User user = userRepository.findById(email).orElseThrow();
         if(user.isLoggedIn()) {
             Optional<Notification> notification= notificationRepository
@@ -211,5 +209,21 @@ public class MailboxesServiceImpl implements MailboxesService {
 
 
 
+    }
+
+    @Override
+    public void deleteMessageFromInbox(Message message, String email) {
+        Mailboxes mailboxes=  repository.findById(email).orElseThrow(
+                ()-> new EmailException("email does not exist")
+        );
+        User user = userRepository.findById(email).orElseThrow(
+                ()-> new EmailException("user not found")
+        );
+        if(user.isLoggedIn()){
+        List <Message> messageToBeDeleted=   mailboxes.getMailbox().get(0).getMessage();
+            for (int i = 0; i < messageToBeDeleted.size(); i++) {
+
+            }
+        }
     }
 }

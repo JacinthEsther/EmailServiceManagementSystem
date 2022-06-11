@@ -37,7 +37,9 @@ public class EmailSecurityConfig extends WebSecurityConfigurerAdapter{
                 .disable()
                 .authorizeHttpRequests(authorize -> {
                     try {
-                        authorize.antMatchers("/api/v1/emailService/sign-up", "/api/v1/emailService/login")
+                        authorize.antMatchers("/api/v1/emailService/sign-up", "/api/v1/emailService/login",
+                                        "/api/v1/emailService/sendMessage/* ","/api/v1/emailService/send/messages/*",
+                                                "/api/v1/emailService/**","/api/v1/emailService/*")
                                 .permitAll()
                                 .anyRequest()
                                 .authenticated()

@@ -26,7 +26,7 @@ public class MessageServiceImpl implements MessageService{
 
 
     @Override
-    public String sendMessage(MessageRequest message, String senderEmail) {
+    public Message sendMessage(MessageRequest message, String senderEmail) {
         if(Optional.ofNullable(message.getMessageBody()).isEmpty()) {
 
         throw new EmailException("Message body cannot be empty");
@@ -43,12 +43,12 @@ public class MessageServiceImpl implements MessageService{
             Message newMessage = messageRepository.save(incomingMessage);
             mailboxesService.addMessages(newMessage);
 
-            return "message sent successfully";
+            return newMessage;
 
     }
 
     @Override
-    public void readMessage(String messageId, String email) {
+    public Message readMessage(String messageId, String email) {
 
 
         Message incomingMessage =  messageRepository.findById(messageId).orElseThrow(()-> {
@@ -58,18 +58,20 @@ public class MessageServiceImpl implements MessageService{
       Message savedMessage=  messageRepository.save(incomingMessage);
 
         mailboxesService.checkReadMessage(savedMessage, email);
+        return savedMessage;
     }
 
     @Override
-    public void deleteMessage(String id) {
+    public void deleteMessageFromInbox(String id, String email) {
      Message message  = messageRepository.findById(id).orElseThrow(
                 ()-> new EmailException("not found")
         );
-       messageRepository.delete(message);
+//       messageRepository.delete(message);
+       mailboxesService.deleteMessageFromInbox(message, email);
     }
 
     @Override
-    public void sendMessage(BulkMessageRequest messages, String senderEmail) {
+    public Message sendMessage(BulkMessageRequest messages, String senderEmail) {
         Message incomingMessage = new Message();
         incomingMessage.setMessageBody(messages.getMessageBody());
         incomingMessage.setLocalDateTime(LocalDateTime.now());
@@ -82,6 +84,7 @@ public class MessageServiceImpl implements MessageService{
 
       Message newMessage=  messageRepository.save(incomingMessage);
         mailboxesService.addMessages(newMessage);
+        return newMessage;
 
     }
 

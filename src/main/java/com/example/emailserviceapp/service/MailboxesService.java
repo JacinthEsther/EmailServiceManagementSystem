@@ -18,4 +18,6 @@ public interface MailboxesService {
 
 
     void checkReadMessage(Message incomingMessage, String email);
+
+    void deleteMessageFromInbox(Message message, String email);
 }

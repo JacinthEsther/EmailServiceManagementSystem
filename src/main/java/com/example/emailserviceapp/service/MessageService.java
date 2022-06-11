@@ -6,14 +6,14 @@ import com.example.emailserviceapp.models.Message;
 
 public interface MessageService {
 
-    String sendMessage(MessageRequest message, String senderEmail);
+    Message sendMessage(MessageRequest message, String senderEmail);
 
-    void readMessage(String messageId, String email);
+    Message readMessage(String messageId, String email);
 
 
-    void deleteMessage(String id);
+    void deleteMessageFromInbox(String id, String email);
 
-    void sendMessage(BulkMessageRequest message, String senderEmail);
+    Message sendMessage(BulkMessageRequest message, String senderEmail);
 
     Message searchForMessage(String id);
 

@@ -121,7 +121,15 @@ public class Controller {
     @GetMapping("/{messageId}")
     public ResponseEntity<?> searchMessage(@PathVariable String messageId) {
 
-        return new ResponseEntity<>(messageService.searchForMessage(messageId), HttpStatus.OK);
+        return new ResponseEntity<>(messageService.searchForMessage(messageId), HttpStatus.FOUND);
+
+    }
+
+    @DeleteMapping("/{email}/{messageId}")
+    public ResponseEntity<?> deleteMessage(@PathVariable String messageId,
+                                           @PathVariable String email) {
+        messageService.deleteMessageFromInbox(messageId, email);
+        return new ResponseEntity<>("Message deleted successfully", HttpStatus.OK);
 
     }
 
@@ -138,9 +146,6 @@ public class Controller {
         return new ResponseEntity<>(mailboxesService.viewAllOutboxes(email), HttpStatus.OK);
 
     }
-
-//    @DeleteMapping
-//    public ResponseEntity<?> delete( )
 
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
